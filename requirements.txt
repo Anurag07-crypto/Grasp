@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+networkx
+chromadb
+reportlab
+openai
+huggingface-hub
+pymupdf
+pypdf
+langchain
+langchain-core
+langchain-community

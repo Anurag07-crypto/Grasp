@@ -1,0 +1,96 @@
+skill-graph-rag/
+│
+├── backend/
+│   ├── main.py                    # FastAPI entry point
+│   ├── config.py                  # env vars, constants
+│   │
+│   ├── ingestion/
+│   │   ├── __init__.py
+│   │   ├── chunker.py             # split corpus into sections
+│   │   ├── extractor.py           # LLM call → extract concepts + prereqs
+│   │   ├── normalizer.py          # deduplicate + normalize concept names
+│   │   ├── embedder.py            # embed concept names via HF API
+│   │   └── pipeline.py            # orchestrates full ingestion flow
+│   │
+│   ├── graph/
+│   │   ├── __init__.py
+│   │   ├── builder.py             # builds NetworkX graph from extracted data
+│   │   ├── store.py               # serialize/deserialize graph to disk
+│   │   ├── traversal.py           # BFS / Dijkstra path finding
+│   │   └── schema.py              # Concept node + Edge dataclasses
+│   │
+│   ├── vector/
+│   │   ├── __init__.py
+│   │   ├── store.py               # ChromaDB init + upsert + query
+│   │   └── embedder.py            # HF inference API wrapper
+│   │
+│   ├── rag/
+│   │   ├── __init__.py
+│   │   ├── resolver.py            # "Transformers" → nearest concept node
+│   │   ├── retriever.py           # fetches source chunks for a concept node
+│   │   ├── explainer.py           # LLM call → explanation per node
+│   │   └── pipeline.py            # orchestrates full query flow
+│   │
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── routes/
+│   │   │   ├── learn.py           # POST /learn — main query endpoint
+│   │   │   ├── graph.py           # GET /graph — return graph data for viz
+│   │   │   └── corpus.py          # POST /ingest — trigger ingestion
+│   │   └── schemas.py             # Pydantic request/response models
+│   │
+│   └── utils/
+│       ├── llm.py                 # API wrapper (free llm)
+│       └── logger.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.tsx
+│   │   ├── App.tsx
+│   │   │
+│   │   ├── components/
+│   │   │   ├── TopicInput.tsx      # "I want to learn X" input
+│   │   │   ├── KnowledgeSelector.tsx # "I already know..." multi-select
+│   │   │   ├── GraphView.tsx       # interactive graph visualization
+│   │   │   ├── LearningPath.tsx    # ordered explanation cards
+│   │   │   └── ConceptCard.tsx     # single concept explanation
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useLearnQuery.ts    # calls POST /learn
+│   │   │   └── useGraphData.ts     # calls GET /graph
+│   │   │
+│   │   ├── types/
+│   │   │   └── index.ts            # ConceptNode, Edge, LearningPath types
+│   │   │
+│   │   └── lib/
+│   │       └── api.ts              # axios/fetch base client
+│   │
+│   ├── public/
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── tsconfig.json
+│
+├── corpora/                        # raw input files (PDFs, docs)
+│   └── .gitkeep
+│
+├── data/
+│   ├── graph/
+│   │   └── graph.pkl               # serialized NetworkX graph
+│   ├── chroma/                     # ChromaDB persistent storage
+│   └── chunks/
+│       └── chunks.json             # raw extracted chunks + metadata
+│
+├── scripts/
+│   ├── ingest.py                   # CLI: python scripts/ingest.py --corpus corpora/ml.pdf
+│   └── visualize_graph.py          # debug: render graph with matplotlib
+│
+├── tests/
+│   ├── test_traversal.py
+│   ├── test_extractor.py
+│   └── test_resolver.py
+│
+├── .env
+├── .env.example
+├── requirements.txt
+├── README.md
+└── render.yaml                     # deploy config (same as RepoLens)
