@@ -1,0 +1,81 @@
+[
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p0_c0000",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p1_c0001",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p2_c0002",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p3_c0003",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p4_c0004",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p4_c0005",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p5_c0006",
+    "concepts": [
+      {
+        "name": "Machine learning",
+        "prerequisites": [
+          "Big data"
+        ]
+      },
+      {
+        "name": "Big data",
+        "prerequisites": []
+      },
+      {
+        "name": "Advanced data analytics",
+        "prerequisites": [
+          "Big data"
+        ]
+      },
+      {
+        "name": "Digital literacy",
+        "prerequisites": []
+      },
+      {
+        "name": "Open standards and frameworks for data",
+        "prerequisites": []
+      },
+      {
+        "name": "Data environment",
+        "prerequisites": []
+      },
+      {
+        "name": "Absorptive capacity",
+        "prerequisites": []
+      },
+      {
+        "name": "Advanced skills in machine learning",
+        "prerequisites": [
+          "Machine learning"
+        ]
+      }
+    ]
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p5_c0007",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p6_c0008",
+    "concepts": []
+  },
+  {
+    "chunk_id": "5.-Machine-learning-The-power-_p6_c0009",
+    "concepts": []
+  }
+]
