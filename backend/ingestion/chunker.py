@@ -3,11 +3,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__name__).parent.parent))
-from backend.utils.logger import get_logger
+from Grasp.backend.utils.logger import get_logger
 import json
 logger = get_logger(__name__)
 
-output_path = Path(r"Grasp/data/chunks/chunk.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+output_path = PROJECT_ROOT / "data" / "chunks" / "chunks.json"
 class Ingestion_pipeline:
     def __init__(self):
         self.chunks = None
@@ -37,8 +39,9 @@ class Ingestion_pipeline:
                 )
                 self.chunks = text_splitter.split_documents(self.doc_load)
                 logger.info("Chunks created successfully")
-                normalized_chunks = self.normalize(self.chunks)
-                self.save_chunks(normalized_chunks, output_path)
+                normalized_chunks = self.normalize()
+                self.save_chunks(normalized_chunks,
+                                 output_path)
                 return normalized_chunks
             except RuntimeError as e:
                 logger.error(f"Chunks are not created successfully: {e}")
@@ -56,7 +59,7 @@ class Ingestion_pipeline:
 
         try:
             chunks = []
-            for index, document in enumerate(self.doc_load):
+            for index, document in enumerate(self.chunks):
                 source = document.metadata.get("source"," ")
                 page = document.metadata.get("page")
                 source_name = Path(source).stem
@@ -67,7 +70,7 @@ class Ingestion_pipeline:
                 "page": page,
                 }
 
-            chunks.append(chunk)
+                chunks.append(chunk)
             logger.info("Chunk Normalized")
             return chunks
         except Exception as e:
@@ -93,3 +96,10 @@ class Ingestion_pipeline:
                 ensure_ascii=False,
                 indent=2,
             )
+        logger.info(
+    f"Chunks saved successfully: {output_path}"
+)
+        
+
+ingest = Ingestion_pipeline()
+chunks = ingest.load_corpus_chunking("C:/Users/Lenovo/Desktop/Skill-graph/Grasp/corpora")
