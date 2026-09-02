@@ -50,13 +50,13 @@ structured_llm = llm.with_structured_output(
     method="json_schema"
 )
 
-def load_test_chunks(path: str | Path, limit: int = 5) -> list[dict]:
+def load_test_chunks(path: str | Path) -> list[dict]:
     path = Path(path)
 
     with path.open("r", encoding="utf-8") as file:
         chunks = json.load(file)
 
-    return chunks[:limit]
+    return chunks
 
 def extract_chunks(chunks: dict) ->LLM_extraction:
     prompt = f"""
@@ -152,8 +152,7 @@ if __name__ == "__main__":
     output_path = Path("data/extracted/extracted_test.json")
 
     chunks = load_test_chunks(
-        chunk_path,
-        limit=10
+        chunk_path
     )
 
     logger.info(
