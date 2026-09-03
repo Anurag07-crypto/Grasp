@@ -1,11 +1,15 @@
 from pathlib import Path
+import os
 import re
 import json
 import sys
+from huggingface_hub import InferenceClient
+from sklearn.metrics.pairwise import cosine_similarity
 sys.path.insert(0, str(Path(__name__).parent.parent))
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
+hf_token = os.getenv("HF_API_KEY")
 INPUT_PATH = Path("data/extracted/extracted_chunks.json")
 OUTPUT_PATH = Path("data/extracted/normalized_chunks.json")
 
@@ -81,20 +85,15 @@ def save_normalized_chunks(chunks):
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(chunks, f, indent=2, ensure_ascii=False)
 
+def get_unique_chunks(chunks):
+    "Getting unique chunks"
+    concepts = set()
+    for chunk in chunks:
+        for concept in chunk.get("concept", []):
+            name = concept.get("concept","")
+            if name:
+                concepts.add(name)
+    return sorted(concepts)
 
-def main():
-    print(f"Loading extracted chunks from: {INPUT_PATH}")
-
-    chunks = load_json()
-    print(f"Loaded {len(chunks)} chunks")
-
-    normalized_chunks = normalize_chunks(chunks)
-
-    save_normalized_chunks(normalized_chunks)
-
-    print(f"Saved normalized chunks to: {OUTPUT_PATH}")
-
-
-if __name__ == "__main__":
-    main()
+def 
 
