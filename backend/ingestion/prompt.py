@@ -12,18 +12,19 @@ Rules:
 - If no prerequisite is supported by the text, return an empty list.
 - Avoid duplicate concepts.
 - Keep concept names concise and canonical.
-- Return ONLY valid JSON.
+- Return a JSON object matching this exact structure. Do not include markdown or additional text..
 Output format:
-[
-  {
-    "concept": "Concept name",
-    "prerequisites": [
-      "Prerequisite concept"
-    ]
-  }
-]
+{{
+  "concepts": [
+    {{
+      "name": "Concept name",
+      "prerequisites": [
+        "Prerequisite concept"
+      ]
+    }}
+  ]
+}}
 Kubernetes text chunk:
 {context}
 """
-
-PROMPT()
+    return CONCEPT_EXTRACTION_PROMPT

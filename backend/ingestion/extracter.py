@@ -63,9 +63,10 @@ class Extracter:
 
                 if not text.strip():
                     continue
-
+                prompt = PROMPT(context=text)
+                print(type(text))
                 llm_response = structured_llm.invoke(
-                    PROMPT(text)
+                    prompt
                 )
 
                 extracted.append(
@@ -84,9 +85,37 @@ class Extracter:
                 logger.info(
                     f"Extracted concepts and prerequisites from chunk: {chunk_id}"
                 )
-        
+            return extracted
         except RuntimeError as e:
             logger.error(f"Chunks not loaded successfully:{e}")
             raise RuntimeError("Chunks not loaded successfully") from e
-                
-                    
+    def save_chunks(
+            self
+        ) -> None:
+
+            chunks = self.llm()
+            self.output_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+        
+            with self.output_path.open("w", encoding="utf-8") as file:
+                json.dump(
+                    chunks,
+                    file,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            logger.info(
+         f"Chunks saved successfully: {self.output_path}"
+    )
+
+output_path = Path("data/extracted/extracted_chunks.json")    
+input_path = Path("data/chunks/chunks.json") 
+extract = Extracter(
+    output_path=output_path,
+    input_path=input_path
+)
+if __name__ == "__main__":
+    extract.save_chunks()
+    logger.info("Concepts and prerequisites assembled successfully")

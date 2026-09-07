@@ -2,7 +2,6 @@ import networkx as nx
 import json
 from pathlib import Path
 import pickle
-import matplotlib.pyplot as plt
 INPUT_PATH = Path("data/extracted/normalized_chunks.json")
 OUTPUT_PATH = Path("data/graph/graph.pkl")
 
@@ -44,22 +43,3 @@ if __name__ == "__main__":
     print(f"Nodes: {graph.number_of_nodes()}")
     print(f"Edges: {graph.number_of_edges()}")
     
-    plt.figure(figsize=(8, 6))
-
-    pos = nx.spring_layout(graph, seed=42)
-
-    nx.draw(
-        graph,
-        pos,
-        with_labels=True,
-        node_size=2500,
-        node_color="lightblue",
-        arrows=True,
-        font_size=10
-    )
-
-    plt.title("Skill Dependency Graph")
-    plt.show()
-    with open(OUTPUT_PATH, "wb") as f:
-        pickle.dump(graph, f)
-        print(f"Graph saved to {OUTPUT_PATH}")
