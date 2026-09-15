@@ -59,13 +59,3 @@ class HFEMBEDDER:
             logger.error(f"Got some unexpected error: {e}")
             raise Exception("Got some unexpected error") from e
 
-embedder = HFEMBEDDER()
-
-text = "Kubernetes Pod"
-
-vector = embedder.embed(text)
-
-print("Embedding generated!")
-print("Dimensions:", len(vector))
-print("First 5 values:", vector[:5])
-        
