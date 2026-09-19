@@ -12,3 +12,4 @@ langchain-core
 langchain-community
 langchain-openrouter
 langchain_groq
+sentence-transformers>=5.6.0

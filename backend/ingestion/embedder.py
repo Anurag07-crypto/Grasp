@@ -63,15 +63,14 @@ class CHUNK_EMBEDDER:
         
     def generate_embeddings(self):
         embedder = HFEMBEDDER()
+        embedder.load_model()
 
-        embeddings = {}
-
-        total = len(self.extract_concepts())
-
-        for index, name in enumerate(self.extract_concepts(), start=1):
-            print(f"[{index}/{total}] Embedding: {name}")
-
-            embeddings[name] = embedder.embed(name)
+        concepts = self.extract_concepts()
+        vectors = embedder.generate_embeddings(concepts)
+        embeddings = {
+            name: vector.tolist()
+            for name, vector in zip(concepts, vectors)
+        }
 
         return embeddings
 
