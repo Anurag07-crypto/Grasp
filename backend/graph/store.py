@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Any
 import os
 import numpy as np
-sys.path.insert(0, str(Path(__name__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -71,6 +71,20 @@ class VECTORDB:
         ids = []
         document_texts = []
         metadatas = []
-        embedding_lists = []
         
-        
+        for doc in documents:
+            chunk_id = doc["id"]
+            text = doc["text"]
+
+            ids.append(str(chunk_id))
+            document_texts.append(text)
+            metadatas.append({"id": str(chunk_id)})
+
+        self.collection.upsert(
+            ids=ids,
+            documents=document_texts,
+            embeddings=embeddings.tolist(),
+            metadatas=metadatas
+        )
+
+        logger.info(f"Stored {len(ids)} chunks in ChromaDB")
