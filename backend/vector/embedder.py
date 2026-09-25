@@ -1,14 +1,9 @@
-from huggingface_hub import InferenceClient
 from typing import List
-import os
-from dotenv import load_dotenv
 from pathlib import Path
 import sys
 from sentence_transformers import SentenceTransformer
 sys.path.insert(0, str(Path(__name__).parent.parent))
 from backend.utils.logger import get_logger
-load_dotenv()
-
 logger = get_logger(__name__)
 class HFEMBEDDER:
     def __init__(
