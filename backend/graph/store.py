@@ -1,10 +1,9 @@
 import chromadb
-import uuid
+import json
 import sys
 from pathlib import Path
 from typing import List, Any
 import os
-import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.logger import get_logger
 
@@ -38,7 +37,7 @@ class VECTORDB:
             os.makedirs(self.persistant_path, exist_ok=True)
             self.client = chromadb.PersistentClient(
                 self.persistant_path,
-                metadata={"description":"Concepts extraction texts"}
+                metadata={"description":"Original source text chunks"}
             )
             self.collection = self.client.get_or_create_collection(
                 self.collection_name
@@ -54,8 +53,7 @@ class VECTORDB:
         
     def add_documents(
         self,
-        documents:List[Any],
-        embeddings:np.ndarray
+        documents:List[Any]
     ):
         """
         Adding documents to the vector store
@@ -65,15 +63,15 @@ class VECTORDB:
             embeddings (np.ndarray): embeddings
         """
         
-        if len(documents) != len(embeddings):
-            logger.critical("Length of documents and embeddings should be same")
+        if not documents:
+            logger.critical("Documents are not in comfortable conditions")
         
         ids = []
         document_texts = []
         metadatas = []
         
         for doc in documents:
-            chunk_id = doc["id"]
+            chunk_id = str(doc["id"])
             text = doc["text"]
 
             ids.append(str(chunk_id))
@@ -83,8 +81,17 @@ class VECTORDB:
         self.collection.upsert(
             ids=ids,
             documents=document_texts,
-            embeddings=embeddings.tolist(),
             metadatas=metadatas
         )
 
         logger.info(f"Stored {len(ids)} chunks in ChromaDB")
+
+with open("data/chunks.json", "r", encoding="utf-8") as f:
+    chunks = json.load(f)
+
+vectordb = VECTORDB(
+    persistant_path="data/chroma",
+    collection_name="source_chunks"
+)
+
+vectordb.add_documents(chunks)
