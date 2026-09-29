@@ -25,7 +25,7 @@ class VECTORDB:
         self.collection_name = collection_name
         self.client = None
         self.collection = None
-        self._load_initialization()
+        self.load_initialization()
         
     def load_initialization(
         self
@@ -36,11 +36,11 @@ class VECTORDB:
         try:
             os.makedirs(self.persistant_path, exist_ok=True)
             self.client = chromadb.PersistentClient(
-                self.persistant_path,
-                metadata={"description":"Original source text chunks"}
+                self.persistant_path
             )
             self.collection = self.client.get_or_create_collection(
-                self.collection_name
+                self.collection_name,
+                metadata={"description":"Original source text chunks"}
             )
             
             logger.info("The Store Initialized")
@@ -77,16 +77,16 @@ class VECTORDB:
             ids.append(str(chunk_id))
             document_texts.append(text)
             metadatas.append({"id": str(chunk_id)})
-
+        logger.info(f"Starting to store {len(ids)} chunks...")
         self.collection.upsert(
             ids=ids,
             documents=document_texts,
             metadatas=metadatas
         )
 
-        logger.info(f"Stored {len(ids)} chunks in ChromaDB")
+        logger.info(f"Finished storing chunks. Collection count: {self.collection.count()}")
 
-with open("data/chunks.json", "r", encoding="utf-8") as f:
+with open("data/chunks/chunks.json", "r", encoding="utf-8") as f:
     chunks = json.load(f)
 
 vectordb = VECTORDB(
@@ -95,3 +95,9 @@ vectordb = VECTORDB(
 )
 
 vectordb.add_documents(chunks)
+result = vectordb.collection.get(
+    ids=["Concepts_p0_c0000"],
+    include=["documents", "metadatas"]
+)
+
+print(result)
