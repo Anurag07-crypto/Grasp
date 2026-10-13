@@ -8,14 +8,14 @@ from typing import Any
 import numpy as np
 import sys
 
-sys.path.insert(0, Path(__file__).parent.parent)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.logger import get_logger
 
-from backend.vector.embedder import HFEMBEDDER
+from vector.embedder import HFEMBEDDER
 logger  = get_logger(__name__)
 Project_root = Path(__file__).resolve().parents[2]
 Embedding_root = (
-{Project_root} / "Grasp"/ "data"/ "extracted_chunks"/ "concept_embeddings.json"
+    Project_root / "data" / "extracted" / "concept_embeddings.json"
 )
 
 
@@ -31,9 +31,8 @@ class ConceptResolver:
         self.concepts:list[str] = []
         self.embedding_matrix:np.ndarray
         self._normalized_concept_lookup: dict[str, str] = {}
-        self._load_concept_embeddings()
-        self._load_embedding_model()
-        self._normalized_concept_lookup = {}
+        self.load_concept_embeddings()
+        self.load_embedding_model()
         
     def load_embedding_model(self):
         """
@@ -61,9 +60,9 @@ class ConceptResolver:
         expected_dimensions : int|None = None
         
         for concept, vector in data.items():
-            if isinstance(concept, str) or concept.strip():
+            if not isinstance(concept, str) or not concept.strip():
                 continue
-            if isinstance(vector, list) or not vector:
+            if not isinstance(vector, list) or not vector:
                 continue
             if expected_dimensions is None:
                 expected_dimensions = len(vector)
@@ -123,7 +122,7 @@ class ConceptResolver:
                 )
             query_vector = query_vector[0]
         
-        if query_vector[0] != 1:
+        if query_vector.ndim != 1:
             logger.error(
                 f"Expected a 1-D vector but got {query_vector.shape}"
             )
@@ -151,5 +150,77 @@ class ConceptResolver:
                 "Query Vector has zero length"
             )
         return query_vector/norm
+    
+    def search(
+        self,
+        query:str,
+        top_k:int = 5
+    ):
+        """
+        Return the top matching concepts ordered by cosine similarity.
+        """
+        
+        if not isinstance(query, str) or not query.strip():
+            logger.error("Query Should be non empty string")
+            raise ValueError(
+                "Query should be non empty string"
+            )
+        if top_k<1:
+            logger.error("Tok_K value should be atleast 1")
+            raise ValueError(
+                "Top_K value should be atleast 1"
+            )
+        
+        query = query.strip()
+        exact_match = self._normalized_concept_lookup.get(
+            self.normalize_text(query)
+        )
+        query_vector = self._embed_query(query)
+        scores = self.embedding_matrix @ query_vector
+        results = []
+
+        if exact_match is not None:
+            exact_index = self.concepts.index(exact_match)
+            results.append(
+                {
+                    "concept": exact_match,
+                    "score": float(scores[exact_index]),
+                }
+            )
+            scores[exact_index] = -np.inf
+            candidate_count = min(top_k - 1, len(self.concepts) - 1)
+        else:
+            candidate_count = min(top_k, len(self.concepts))
+
+        if candidate_count:
+            candidate_indices = np.argpartition(
+                scores, -candidate_count
+            )[-candidate_count:]
+            candidate_indices = candidate_indices[
+                np.argsort(scores[candidate_indices])[::-1]
+            ]
+            results.extend(
+                {
+                    "concept": self.concepts[int(index)],
+                    "score": float(scores[index]),
+                }
+                for index in candidate_indices
+            )
+
+        return results
+        
+    def resolve(self, query: str) -> dict[str, Any]:
+        """Return the single highest-ranked concept."""
+        return self.search(query, top_k=1)[0]
+    
+if __name__ == "__main__":
+    resolver = ConceptResolver()
+    test_query = "Kubernetes Services"
+
+    print(f"Query: {test_query}")
+    print("Top matches:")
+
+    for result in resolver.search(test_query, top_k=5):
+        print(f"  {result['concept']}: {result['score']:.4f}")
     
     
