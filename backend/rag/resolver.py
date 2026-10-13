@@ -33,6 +33,7 @@ class ConceptResolver:
         self._normalized_concept_lookup: dict[str, str] = {}
         self._load_concept_embeddings()
         self._load_embedding_model()
+        self._normalized_concept_lookup = {}
         
     def load_embedding_model(self):
         """
@@ -85,13 +86,70 @@ class ConceptResolver:
         matrix = np.asarray(vectors, dtype=np.float32)
         if not np.isfinite(matrix).all():
             raise ValueError("Concept embeddings contain NaN or infinite values.")
-    
+        norms = np.linalg.norm(matrix,axis=1, keepdims=True)
+        if np.any(norms==0):
+            logger.error("Vector has normalization value Zero")
+            raise ValueError("Vector has normalization value Zero")
+        self.concepts = concepts
+        self.embedding_matrix = matrix/norms
+        self._normalized_concept_lookup = {
+            self.normalize_text(concept): concept for concept in concepts
+        }
+        
     @staticmethod
     def normalize_text(text:str):
         "Normalize only the exact matching concepts"
-        return "".join(text.casefold().split())
+        return "".join(text.casefold().split()) 
 
-    
-    
+    def _embed_query(self,query:str) -> np.ndarray:
+        """Embed the users query
+
+        Args:
+            query (str): user query
+        """
+        
+        vectors: Any = self.embedder.generate_embeddings([query])
+        if hasattr(vectors, "detach"):
+            vectors = vectors.detach().cpu().numpy()
+        query_vector = np.asarray(vectors, dtype=np.float32)
+        
+        if query_vector.ndim == 2:
+            if query_vector.shape[0] != 1:
+                logger.error("Expected one query embedding"
+                             f"Recived vector shape {query_vector.shape}")
+                raise Exception(
+                    "Expected one query embedding"
+                    f"Recieved vector shape {query_vector.shape}"
+                )
+            query_vector = query_vector[0]
+        
+        if query_vector[0] != 1:
+            logger.error(
+                f"Expected a 1-D vector but got {query_vector.shape}"
+            )
+            raise Exception(
+                f"Expected a 1-D vector but got {query_vector.shape}"
+            )
+        if query_vector.shape[0] != self.embedding_matrix.shape[1]:
+            raise ValueError(
+                "Embedding dimension mismatch. The query model produced "
+                f"{query_vector.shape[0]} dimensions, but saved concept "
+                f"embeddings have {self.embedding_matrix.shape[1]}. "
+                "Use the same embedding model used to create the saved vectors."
+            )
+            
+        if not np.isfinite(query_vector).all():
+            logger.critical("Warning query vector contains infinite values")
+            raise ValueError(
+                "Warning query vector contains infinite values"
+            )
+        
+        norm = np.linalg.norm(query_vector)
+        if norm == 0:
+            logger.error("Query Vector has zero length")
+            raise ValueError(
+                "Query Vector has zero length"
+            )
+        return query_vector/norm
     
     
