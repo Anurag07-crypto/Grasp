@@ -78,12 +78,14 @@ class ConceptResolver:
             concepts.append(concept)
             vectors.append(vector)
         if not concepts:
+            logger.error(f"No valid concept vectors found in {self.embeddings_path}")
             raise ValueError(
                 f"No valid concept vectors found in {self.embeddings_path}"
             )
-
+            
         matrix = np.asarray(vectors, dtype=np.float32)
         if not np.isfinite(matrix).all():
+            logger.critical("Concept embeddings contain NaN or infinite values.")
             raise ValueError("Concept embeddings contain NaN or infinite values.")
         norms = np.linalg.norm(matrix,axis=1, keepdims=True)
         if np.any(norms==0):
@@ -130,6 +132,12 @@ class ConceptResolver:
                 f"Expected a 1-D vector but got {query_vector.shape}"
             )
         if query_vector.shape[0] != self.embedding_matrix.shape[1]:
+            logger.debug(
+                "Embedding dimension mismatch. The query model produced "
+                f"{query_vector.shape[0]} dimensions, but saved concept "
+                f"embeddings have {self.embedding_matrix.shape[1]}. "
+                "Use the same embedding model used to create the saved vectors."
+            )
             raise ValueError(
                 "Embedding dimension mismatch. The query model produced "
                 f"{query_vector.shape[0]} dimensions, but saved concept "
@@ -222,5 +230,3 @@ if __name__ == "__main__":
 
     for result in resolver.search(test_query, top_k=5):
         print(f"  {result['concept']}: {result['score']:.4f}")
-    
-    
