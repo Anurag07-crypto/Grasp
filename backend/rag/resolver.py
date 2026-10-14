@@ -18,7 +18,6 @@ Embedding_root = (
     Project_root / "data" / "extracted" / "concept_embeddings.json"
 )
 
-
 class ConceptResolver:
     "find the nearest saved concept to the user"
     def __init__(
