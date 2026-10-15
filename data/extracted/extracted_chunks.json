@@ -628,9 +628,7 @@
       },
       {
         "name": "Pod",
-        "prerequisites": [
-          "StatefulSet"
-        ]
+        "prerequisites": []
       },
       {
         "name": "Server side field validation",
@@ -4379,7 +4377,6 @@
         "prerequisites": [
           "Container",
           "Deployment",
-          "StatefulSet",
           "Pod"
         ]
       },
@@ -10292,9 +10289,7 @@
       },
       {
         "name": "Headless Service",
-        "prerequisites": [
-          "StatefulSet"
-        ]
+        "prerequisites": []
       },
       {
         "name": "DNS caching",
@@ -12650,9 +12645,7 @@
       },
       {
         "name": "Job",
-        "prerequisites": [
-          "CronJob"
-        ]
+        "prerequisites": []
       },
       {
         "name": "Pod",
@@ -12865,9 +12858,7 @@
       },
       {
         "name": "Job",
-        "prerequisites": [
-          "CronJob"
-        ]
+        "prerequisites": []
       },
       {
         "name": "Pod",
@@ -39920,15 +39911,11 @@
       },
       {
         "name": "Volume",
-        "prerequisites": [
-          "DaemonSet"
-        ]
+        "prerequisites": []
       },
       {
         "name": "PodSpec",
-        "prerequisites": [
-          "DaemonSet"
-        ]
+        "prerequisites": []
       },
       {
         "name": "Device plugin resources",
